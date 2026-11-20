@@ -1,0 +1,6 @@
+{
+  "name": "Cội Nguồn - Gia Phả Điện Tử",
+  "description": "Hệ thống quản lý gia phả và kết nối các thế hệ dòng họ Việt Nam, lưu giữ cội nguồn và kết nối các thế hệ.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
