@@ -69,7 +69,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requireActive?: bool
 export default function App() {
   return (
     <AppProvider>
-      <Router basename="/coi-nguon">
+      <Router basename="/Coi_nguon">
         <Toast />
         <Routes>
           {/* Public Routes */}

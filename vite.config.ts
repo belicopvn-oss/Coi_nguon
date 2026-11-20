@@ -6,7 +6,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/coi-nguon/',
+    base: '/Coi_nguon/',
     plugins: [
       react(),
       tailwindcss(),
