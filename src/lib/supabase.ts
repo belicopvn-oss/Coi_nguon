@@ -100,3 +100,129 @@ export async function testSupabaseConnection(): Promise<ConnectionTestResult> {
 
   return result;
 }
+
+export type ReviewMemberLinkDecision = 'approve' | 'reject';
+
+export interface ReviewMemberLinkResult {
+  success: boolean;
+  data?: unknown;
+  message: string;
+  errorCode?: string;
+  errorDetail?: string;
+  errorHint?: string;
+}
+
+/**
+ * Gọi RPC review_member_account_link bằng phiên Supabase Auth hiện tại.
+ * Chỉ cho phép thực thi khi phiên đăng nhập thật hợp lệ và tài khoản có quyền chủ gia phả (owner)
+ * trong bảng family_memberships. Không giả lập auth.uid(), không dùng service_role.
+ */
+export async function reviewMemberAccountLink(
+  linkId: string,
+  decision: ReviewMemberLinkDecision = 'approve'
+): Promise<ReviewMemberLinkResult> {
+  const trimmedLinkId = linkId.trim();
+
+  if (!trimmedLinkId) {
+    return {
+      success: false,
+      message: 'Vui lòng nhập mã liên kết (p_link_id) hợp lệ.',
+    };
+  }
+
+  if (!isSupabaseConfigured) {
+    return {
+      success: false,
+      message: 'Ứng dụng chưa được cấu hình biến môi trường Supabase (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).',
+    };
+  }
+
+  // 1. Xác nhận phiên đăng nhập Supabase Auth thực tế đang hoạt động
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabase.auth.getSession();
+
+  if (sessionError) {
+    return {
+      success: false,
+      message: `Không thể đọc phiên xác thực hiện tại: ${sessionError.message}`,
+      errorCode: sessionError.code,
+      errorDetail: sessionError.message,
+    };
+  }
+
+  if (!session?.access_token || !session?.user?.id) {
+    return {
+      success: false,
+      message:
+        'Chưa có phiên đăng nhập Supabase hợp lệ. Vui lòng đăng nhập bằng tài khoản Supabase thật (không dùng tài khoản demo).',
+    };
+  }
+
+  // 2. Xác minh người dùng hiện tại có quyền chủ gia phả (owner) đang hoạt động
+  const { data: memberships, error: membershipError } = await supabase
+    .from('family_memberships')
+    .select('*')
+    .eq('user_id', session.user.id);
+
+  if (membershipError) {
+    return {
+      success: false,
+      message: 'Không thể kiểm tra quyền chủ gia phả từ bảng family_memberships.',
+      errorCode: membershipError.code,
+      errorDetail: membershipError.message,
+      errorHint: membershipError.hint || undefined,
+    };
+  }
+
+  const isOwner =
+    Array.isArray(memberships) &&
+    memberships.some((m: Record<string, unknown>) => {
+      const role = String(m.role ?? '').toLowerCase();
+      const status = m.status ? String(m.status).toLowerCase() : 'active';
+      return role === 'owner' && status === 'active';
+    });
+
+  if (!isOwner) {
+    return {
+      success: false,
+      message:
+        'Từ chối thực thi: Chỉ tài khoản có quyền chủ gia phả (owner) đang hoạt động mới được phép xác minh liên kết hồ sơ.',
+    };
+  }
+
+  // 3. Gọi RPC review_member_account_link bằng JWT của phiên hiện tại
+  try {
+    const { data, error } = await supabase.rpc('review_member_account_link', {
+      p_link_id: trimmedLinkId,
+      p_decision: decision,
+    });
+
+    if (error) {
+      return {
+        success: false,
+        message: error.message || 'Gọi RPC review_member_account_link thất bại.',
+        errorCode: error.code,
+        errorDetail: error.details || undefined,
+        errorHint: error.hint || undefined,
+      };
+    }
+
+    return {
+      success: true,
+      data,
+      message:
+        decision === 'approve'
+          ? 'Đã phê duyệt xác minh liên kết hồ sơ gia đình thành công.'
+          : 'Đã cập nhật quyết định từ chối liên kết hồ sơ gia đình thành công.',
+    };
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    return {
+      success: false,
+      message: `Lỗi kết nối khi gọi RPC review_member_account_link: ${errMsg}`,
+      errorDetail: errMsg,
+    };
+  }
+}

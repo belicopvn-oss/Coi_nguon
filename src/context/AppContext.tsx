@@ -55,17 +55,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let isMounted = true;
 
     if (isSupabaseConfigured) {
-      supabase.auth.getSession().then(({ data: { session }, error }) => {
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
         if (!isMounted) return;
         if (session) {
           setSession(session);
-          syncUserFromSession(session);
+          await syncUserFromSession(session);
           setIsSupabaseConnected(true);
         } else {
           // If no live session, keep currentUser null for auth guard
           setIsSupabaseConnected(true);
         }
-        setIsLoadingAuth(false);
+        if (isMounted) {
+          setIsLoadingAuth(false);
+        }
       }).catch((err) => {
         if (!isMounted) return;
         console.warn('Supabase session check error:', err);
@@ -94,9 +96,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const syncUserFromSession = async (currentSession: Session) => {
     const sbUser = currentSession.user;
     const fullName = sbUser.user_metadata?.full_name || sbUser.email?.split('@')[0] || 'Thành viên';
-    
-    // Check family_memberships for this user if table exists
-    let status: 'active' | 'pending' | 'none' = 'active'; // Default active for owner/admin or demo
+
+    // Check family_memberships for this user using current authenticated session
+    let status: 'active' | 'pending' | 'none' = 'active';
+    let resolvedRole: User['role'] = 'viewer';
+
     try {
       const { data: memberships, error } = await supabase
         .from('family_memberships')
@@ -104,10 +108,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         .eq('user_id', sbUser.id);
 
       if (!error && memberships && memberships.length > 0) {
-        status = memberships[0].status || 'pending';
+        const activeMemberships = memberships.filter(
+          (m: Record<string, unknown>) => !m.status || String(m.status).toLowerCase() === 'active'
+        );
+
+        if (activeMemberships.length > 0) {
+          status = 'active';
+          const roles = activeMemberships.map((m: Record<string, unknown>) =>
+            String(m.role ?? '').toLowerCase()
+          );
+          if (roles.includes('owner')) {
+            resolvedRole = 'owner';
+          } else if (roles.includes('admin')) {
+            resolvedRole = 'admin';
+          } else if (roles.includes('editor')) {
+            resolvedRole = 'editor';
+          } else {
+            resolvedRole = 'viewer';
+          }
+        } else {
+          const firstStatus = String(memberships[0].status ?? 'pending').toLowerCase();
+          status = firstStatus === 'active' ? 'active' : 'pending';
+          const firstRole = String(memberships[0].role ?? 'viewer').toLowerCase();
+          if (firstRole === 'owner' || firstRole === 'admin' || firstRole === 'editor' || firstRole === 'viewer') {
+            resolvedRole = firstRole;
+          }
+        }
       }
     } catch {
-      // Fallback if table not yet created
+      // Fallback if table not accessible
       status = 'active';
     }
 
@@ -117,7 +146,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: sbUser.id,
       fullName,
       email: sbUser.email || '',
-      role: 'admin',
+      role: resolvedRole,
       lineageIds: ['lin-1'],
       avatarUrl: sbUser.user_metadata?.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     });

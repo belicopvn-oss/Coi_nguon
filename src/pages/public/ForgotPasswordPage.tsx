@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
-import { BookOpen, Mail, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Mail, ArrowRight, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { BrandSeal } from '../../components/common/BrandMark';
 
 export const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -26,74 +27,90 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#083327] via-[#0F4C3A] to-[#0A382B] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-amber-500/30 overflow-hidden p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 items-center justify-center text-[#0F4C3A] shadow-lg mb-1">
-            <BookOpen className="w-7 h-7 font-bold" />
-          </Link>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#0F4C3A]">Khôi Phục Mật Khẩu</h2>
-          <p className="text-xs text-gray-500">
-            Nhập email tài khoản của bạn để nhận liên kết đặt lại mật khẩu từ Cội Nguồn
-          </p>
-        </div>
+    <div className="min-h-[calc(100vh-140px)] bg-[#F5F0E5] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-[#E3D9C6] overflow-hidden">
+        <div className="h-1.5 bg-gradient-to-r from-[#203D32] via-[#B28A45] to-[#6B4632]" />
 
-        {submitted ? (
-          <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-3">
-            <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto" />
-            <h3 className="font-bold text-[#0F4C3A] text-base">Đã gửi yêu cầu thành công!</h3>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Vui lòng kiểm tra hộp thư đến (hoặc thư rác) tại <strong>{email}</strong> để làm theo hướng dẫn khôi phục mật khẩu.
-            </p>
-            <Link
-              to="/login"
-              className="inline-block bg-[#0F4C3A] text-white font-bold px-6 py-2.5 rounded-xl text-xs mt-2"
-            >
-              Quay lại đăng nhập
+        <div className="p-7 sm:p-9 space-y-6">
+          <div className="text-center space-y-2.5">
+            <Link to="/" className="inline-flex justify-center">
+              <BrandSeal className="w-12 h-12" variant="light" />
             </Link>
+            <h1 className="font-serif text-2xl sm:text-3xl font-semibold text-[#203D32]">Khôi phục mật khẩu</h1>
+            <p className="text-xs sm:text-sm text-[#5A534A]">
+              Nhập email đã đăng ký để nhận liên kết đặt lại mật khẩu từ Cội Nguồn
+            </p>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {errorMessage && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3.5 rounded-xl font-medium">
-                {errorMessage}
-              </div>
-            )}
 
-            <div className="space-y-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Email đăng ký</label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                  <Mail className="w-4 h-4" />
-                </span>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
-                  placeholder="email@domain.com"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#0F4C3A] hover:bg-[#083327] text-white font-bold py-3.5 rounded-xl shadow-lg text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              <span>{loading ? 'Đang gửi...' : 'Gửi Yêu Cầu Khôi Phục'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <div className="text-center pt-2 text-sm text-gray-600">
-              Nhớ mật khẩu?{' '}
-              <Link to="/login" className="text-[#0F4C3A] font-bold hover:underline">
-                Đăng nhập ngay
+          {submitted ? (
+            <div className="bg-[#FAF7F0] border border-[#B28A45]/45 p-6 rounded-xl text-center space-y-3">
+              <CheckCircle2 className="w-11 h-11 text-[#203D32] mx-auto" />
+              <h2 className="font-serif font-semibold text-[#203D32] text-lg">Đã gửi yêu cầu thành công</h2>
+              <p className="text-xs sm:text-sm text-[#4A443C] leading-relaxed">
+                Vui lòng kiểm tra hộp thư đến (hoặc thư rác) tại <strong className="text-[#203D32]">{email}</strong> để làm theo hướng dẫn đặt lại mật khẩu.
+              </p>
+              <Link
+                to="/login"
+                className="inline-block bg-[#203D32] hover:bg-[#162B23] text-[#F5F0E5] font-semibold px-6 py-2.5 rounded-lg text-sm mt-2 transition-colors"
+              >
+                Quay lại đăng nhập
               </Link>
             </div>
-          </form>
-        )}
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {errorMessage && (
+                <div className="bg-red-50 border border-red-200 text-red-800 text-xs p-3.5 rounded-xl font-medium flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-600" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label htmlFor="forgot-email" className="block text-xs font-semibold text-[#6B4632]">
+                  Email đăng ký
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5A534A]">
+                    <Mail className="w-4 h-4" />
+                  </span>
+                  <input
+                    id="forgot-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] placeholder:text-[#5A534A]/60 focus:outline-none focus:ring-2 focus:ring-[#203D32]"
+                    placeholder="email@domain.com"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-[#203D32] hover:bg-[#162B23] text-[#F5F0E5] font-semibold py-3.5 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Đang gửi...
+                  </span>
+                ) : (
+                  <>
+                    <span>Gửi yêu cầu khôi phục</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+
+              <div className="text-center pt-3 border-t border-[#EAE2D1] text-sm text-[#5A534A]">
+                Đã nhớ lại mật khẩu?{' '}
+                <Link to="/login" className="text-[#203D32] font-semibold hover:text-[#6B4632] hover:underline">
+                  Đăng nhập ngay
+                </Link>
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

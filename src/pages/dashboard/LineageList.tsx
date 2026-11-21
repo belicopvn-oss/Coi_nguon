@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { GitBranch, MapPin, Users, Plus, Shield, ArrowRight } from 'lucide-react';
+import { MapPin, Users, Plus, ArrowRight, X, Check } from 'lucide-react';
 
 export const LineageList: React.FC = () => {
   const { lineages, activeLineageId, setActiveLineageId, addLineage } = useApp();
@@ -27,18 +27,19 @@ export const LineageList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-[#E3D9C6] shadow-xs">
         <div>
-          <h2 className="font-serif text-3xl font-bold text-[#0F4C3A]">Danh Sách Gia Phả Dòng Họ</h2>
-          <p className="text-sm text-gray-500 mt-1">Quản lý các không gian gia phả và chi phái bạn tham gia</p>
+          <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-[#203D32]">Không gian gia phả dòng họ</h2>
+          <p className="text-sm text-[#5A534A] mt-1">Quản lý và chuyển đổi giữa các dòng họ, chi phái bạn tham gia</p>
         </div>
         <button
+          type="button"
           onClick={() => setShowModal(true)}
-          className="bg-amber-500 hover:bg-amber-600 text-[#0F4C3A] font-bold px-5 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm transition-all"
+          className="inline-flex items-center justify-center gap-2 bg-[#B28A45] hover:bg-[#9E7838] text-[#162B23] font-semibold px-5 py-3 rounded-lg text-sm transition-colors whitespace-nowrap cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>Tạo Dòng Họ Mới</span>
+          <span>Tạo dòng họ mới</span>
         </button>
       </div>
 
@@ -46,113 +47,122 @@ export const LineageList: React.FC = () => {
         {lineages.map((lin) => {
           const isActive = lin.id === activeLineageId;
           return (
-            <div
+            <article
               key={lin.id}
-              className={`bg-white rounded-3xl p-6 sm:p-8 shadow-sm border transition-all ${
-                isActive ? 'border-[#0F4C3A] ring-2 ring-[#0F4C3A]/20' : 'border-gray-200 hover:border-amber-500/50'
-              } flex flex-col justify-between space-y-6`}
+              className={`bg-white rounded-2xl p-6 sm:p-7 border shadow-xs transition-colors flex flex-col justify-between space-y-6 ${
+                isActive ? 'border-[#203D32] ring-1 ring-[#203D32]/20' : 'border-[#E3D9C6] hover:border-[#B28A45]'
+              }`}
             >
               <div className="space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-3 py-1 rounded-full">
-                      Thủy tổ: {lin.founderName}
-                    </span>
-                    <h3 className="font-serif text-2xl font-bold text-[#0F4C3A] mt-3">{lin.name}</h3>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-3 text-xs">
+                    <span className="font-medium text-[#6B4632]">{lin.founderName}</span>
+                    {isActive && (
+                      <span className="inline-flex items-center gap-1 font-semibold text-[#203D32] shrink-0">
+                        <Check className="w-3.5 h-3.5 text-[#B28A45]" /> Đang chọn
+                      </span>
+                    )}
                   </div>
-                  {isActive && (
-                    <span className="bg-[#0F4C3A] text-white text-xs font-bold px-3 py-1 rounded-full shrink-0">
-                      Đang chọn
-                    </span>
-                  )}
+                  <h3 className="font-serif text-2xl font-semibold text-[#203D32]">{lin.name}</h3>
                 </div>
 
-                <p className="text-sm text-gray-600 leading-relaxed">{lin.description}</p>
+                <p className="text-sm text-[#4A443C] leading-relaxed">{lin.description}</p>
 
-                <div className="space-y-2 text-xs text-gray-500 pt-2 border-t border-gray-100">
+                <div className="space-y-2 text-xs text-[#5A534A] pt-4 border-t border-[#EAE2D1]">
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-amber-600 shrink-0" />
+                    <MapPin className="w-4 h-4 text-[#B28A45] shrink-0" />
                     <span>Quê gốc: {lin.originPlace}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[#0F4C3A] shrink-0" />
-                    <span>Tổng số thành viên: {lin.totalMembers} • {lin.totalGenerations} thế hệ</span>
+                  <div className="flex items-center gap-2 tabular-nums">
+                    <Users className="w-4 h-4 text-[#203D32] shrink-0" />
+                    <span>
+                      {lin.totalMembers} thành viên · {lin.totalGenerations} thế hệ
+                      {lin.foundedYear ? ` · Lập năm ${lin.foundedYear}` : ''}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="pt-4 border-t border-[#EAE2D1]">
                 <button
+                  type="button"
                   onClick={() => setActiveLineageId(lin.id)}
-                  className={`w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+                  className={`w-full py-3 px-4 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer ${
                     isActive
-                      ? 'bg-[#0F4C3A] text-white shadow-md'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+                      ? 'bg-[#203D32] text-[#F5F0E5]'
+                      : 'bg-[#FAF7F0] hover:bg-[#EFE5D0] text-[#203D32] border border-[#E3D9C6]'
                   }`}
                 >
-                  <span>{isActive ? 'Đang truy cập' : 'Chuyển sang dòng họ này'}</span>
+                  <span>{isActive ? 'Đang làm việc trên dòng họ này' : 'Chuyển sang dòng họ này'}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
-            </div>
+            </article>
           );
         })}
       </div>
 
       {/* Modal Add Lineage */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-amber-500/30">
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-2xl font-bold text-[#0F4C3A]">Tạo Dòng Họ Mới</h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 font-bold text-lg">✕</button>
+        <div className="fixed inset-0 bg-[#162B23]/60 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-[#E3D9C6]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#EAE2D1]">
+              <h3 className="font-serif text-2xl font-semibold text-[#203D32]">Tạo dòng họ mới</h3>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="p-1.5 rounded-lg text-[#5A534A] hover:text-[#203D32] hover:bg-[#FAF7F0] cursor-pointer"
+                aria-label="Đóng"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Tên dòng họ / Chi phái</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#6B4632]">Tên dòng họ / Chi phái</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                   placeholder="Ví dụ: Họ Trần Đình - Chi 2"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Quê gốc</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#6B4632]">Quê gốc</label>
                 <input
                   type="text"
                   required
                   value={originPlace}
                   onChange={(e) => setOriginPlace(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                   placeholder="Ví dụ: Huyện Vĩnh Bảo, Hải Phòng"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Tên Thủy Tổ / Tổ khảo</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#6B4632]">Tên Thủy tổ / Tổ khảo</label>
                 <input
                   type="text"
                   required
                   value={founderName}
                   onChange={(e) => setFounderName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                   placeholder="Ví dụ: Cụ Tổ Trần Đình Quý"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Mô tả giới thiệu</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#6B4632]">Mô tả giới thiệu</label>
                 <textarea
                   rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium resize-none"
-                  placeholder="Lịch sử hình thành và phát triển của dòng họ..."
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32] resize-none"
+                  placeholder="Lịch sử hình thành và truyền thống của dòng họ..."
                 />
               </div>
 
@@ -160,15 +170,15 @@ export const LineageList: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-sm transition-colors"
+                  className="flex-1 bg-[#FAF7F0] hover:bg-[#EFE5D0] text-[#203D32] border border-[#E3D9C6] font-semibold py-2.5 rounded-lg text-sm transition-colors cursor-pointer"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-amber-500 hover:bg-amber-600 text-[#0F4C3A] font-bold py-3 rounded-xl text-sm shadow transition-colors"
+                  className="flex-1 bg-[#203D32] hover:bg-[#162B23] text-[#F5F0E5] font-semibold py-2.5 rounded-lg text-sm transition-colors cursor-pointer"
                 >
-                  Tạo Dòng Họ
+                  Lưu dòng họ
                 </button>
               </div>
             </form>

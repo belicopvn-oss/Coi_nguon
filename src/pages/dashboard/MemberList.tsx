@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Users, Search, Plus, Trash2, Edit3, Shield, MapPin, Phone, Mail } from 'lucide-react';
+import { Search, Plus, Trash2, MapPin, Phone, X, ArrowRight } from 'lucide-react';
 import { Member } from '../../types';
+import { MemberAvatar } from '../../components/common/BrandMark';
 
 export const MemberList: React.FC = () => {
-  const { members, activeLineageId, addMember, deleteMember, showToast } = useApp();
+  const { members, activeLineageId, addMember, deleteMember } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterGen, setFilterGen] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [viewingMember, setViewingMember] = useState<Member | null>(null);
 
   // Form state for new member
   const [fullName, setFullName] = useState('');
@@ -22,8 +24,10 @@ export const MemberList: React.FC = () => {
   const lineageMembers = members.filter((m) => m.lineageId === activeLineageId);
 
   const filteredMembers = lineageMembers.filter((m) => {
-    const matchSearch = m.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (m.occupation && m.occupation.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchSearch =
+      m.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (m.occupation && m.occupation.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (m.branch && m.branch.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchGen = filterGen === 'all' || m.generation === Number(filterGen);
     return matchSearch && matchGen;
   });
@@ -50,147 +54,256 @@ export const MemberList: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Top Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-xs border border-gray-200">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-[#E3D9C6] shadow-xs">
         <div>
-          <h2 className="font-serif text-2xl font-bold text-[#0F4C3A]">Danh Sách Thành Viên Dòng Họ</h2>
-          <p className="text-xs text-gray-500 mt-1">Quản lý hồ sơ chi tiết các thành viên trong phả hệ</p>
+          <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-[#203D32]">Danh sách thành viên</h2>
+          <p className="text-sm text-[#5A534A] mt-1 tabular-nums">
+            Hiển thị {filteredMembers.length} / {lineageMembers.length} thành viên trong dòng họ hiện tại
+          </p>
         </div>
 
         <button
+          type="button"
           onClick={() => setShowAddModal(true)}
-          className="bg-amber-500 hover:bg-amber-600 text-[#0F4C3A] font-bold px-5 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 text-sm transition-all"
+          className="inline-flex items-center justify-center gap-2 bg-[#B28A45] hover:bg-[#9E7838] text-[#162B23] font-semibold px-5 py-3 rounded-lg text-sm transition-colors whitespace-nowrap cursor-pointer"
         >
           <Plus className="w-4 h-4" />
-          <span>Thêm Thành Viên Mới</span>
+          <span>Thêm thành viên</span>
         </button>
       </div>
 
-      {/* Search & Filter Bar */}
-      <div className="bg-white p-4 rounded-2xl shadow-xs border border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-96">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+      {/* Search & Generation Filter Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-[#E3D9C6] shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative flex-1 max-w-md">
+          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#5A534A]">
             <Search className="w-4 h-4" />
           </span>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm kiếm theo tên, nghề nghiệp..."
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]"
+            placeholder="Tìm theo họ tên, chi phái, nghề nghiệp..."
+            className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] placeholder:text-[#5A534A]/65 focus:outline-none focus:ring-2 focus:ring-[#203D32]"
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <select
-            value={filterGen}
-            onChange={(e) => setFilterGen(e.target.value)}
-            className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium cursor-pointer w-full sm:w-auto"
-          >
-            <option value="all">Tất cả các đời</option>
-            <option value="1">Đời thứ 1</option>
-            <option value="2">Đời thứ 2</option>
-            <option value="3">Đời thứ 3</option>
-            <option value="4">Đời thứ 4</option>
-            <option value="5">Đời thứ 5</option>
-          </select>
-        </div>
+        <select
+          value={filterGen}
+          onChange={(e) => setFilterGen(e.target.value)}
+          aria-label="Lọc theo đời"
+          className="bg-[#FAF7F0] border border-[#D8CCB7] text-[#203D32] text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#203D32] font-medium cursor-pointer sm:w-48"
+        >
+          <option value="all">Tất cả các đời</option>
+          <option value="1">Đời thứ 1</option>
+          <option value="2">Đời thứ 2</option>
+          <option value="3">Đời thứ 3</option>
+          <option value="4">Đời thứ 4</option>
+          <option value="5">Đời thứ 5</option>
+        </select>
       </div>
 
       {/* Members Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredMembers.map((member) => (
-          <div
-            key={member.id}
-            className="bg-white rounded-3xl p-6 shadow-sm border border-gray-200 hover:border-amber-500/50 transition-all flex flex-col justify-between space-y-4"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <img
-                  src={member.avatarUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'}
-                  alt={member.fullName}
-                  className="w-14 h-14 rounded-full object-cover ring-2 ring-amber-500/30 shrink-0"
-                />
-                <div>
-                  <h3 className="font-bold text-base text-[#0F4C3A]">{member.fullName}</h3>
-                  <span className="text-xs font-medium text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full inline-block mt-0.5">
-                    Đời thứ {member.generation} • {member.branch || 'Chi chính'}
-                  </span>
+      {filteredMembers.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredMembers.map((member) => (
+            <article
+              key={member.id}
+              className="bg-white rounded-2xl p-6 border border-[#E3D9C6] shadow-xs hover:border-[#B28A45] transition-colors flex flex-col justify-between space-y-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <MemberAvatar src={member.avatarUrl} name={member.fullName} size="lg" />
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-[#6B4632] tabular-nums">
+                      Đời thứ {member.generation} · {member.branch || 'Chi chính'}
+                    </p>
+                    <h3 className="font-serif font-semibold text-lg text-[#203D32] truncate mt-0.5">
+                      {member.fullName}
+                    </h3>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => deleteMember(member.id)}
+                  className="text-[#5A534A]/70 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors cursor-pointer shrink-0"
+                  title="Xóa thành viên"
+                  aria-label={`Xóa ${member.fullName}`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
+
+              <div className="space-y-2 text-xs text-[#4A443C] pt-3 border-t border-[#EAE2D1]">
+                {member.occupation && (
+                  <p className="truncate">
+                    <span className="text-[#5A534A]">Nghề nghiệp: </span>
+                    <span className="font-medium text-[#203D32]">{member.occupation}</span>
+                  </p>
+                )}
+                {member.currentLocation && (
+                  <p className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5 text-[#B28A45] shrink-0" />
+                    <span className="truncate">{member.currentLocation}</span>
+                  </p>
+                )}
+                {member.contactInfo?.phone && (
+                  <p className="flex items-center gap-2 tabular-nums">
+                    <Phone className="w-3.5 h-3.5 text-[#203D32] shrink-0" />
+                    <span>{member.contactInfo.phone}</span>
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-3 border-t border-[#EAE2D1]">
+                <span className="text-xs text-[#5A534A] tabular-nums">
+                  {member.birthDate || '—'} ·{' '}
+                  <span className={member.isAlive ? 'text-[#203D32] font-medium' : 'text-[#6B4632]'}>
+                    {member.isAlive ? 'Còn sống' : 'Đã tạ thế'}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setViewingMember(member)}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#203D32] hover:text-[#6B4632] cursor-pointer whitespace-nowrap"
+                >
+                  <span>Xem hồ sơ</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl p-10 border border-[#E3D9C6] text-center space-y-3">
+          <p className="font-serif text-lg font-semibold text-[#203D32]">Không tìm thấy thành viên phù hợp</p>
+          <p className="text-sm text-[#5A534A]">Thử thay đổi từ khóa tìm kiếm hoặc chọn bộ lọc thế hệ khác.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery('');
+              setFilterGen('all');
+            }}
+            className="bg-[#FAF7F0] hover:bg-[#EFE5D0] text-[#203D32] border border-[#E3D9C6] font-semibold px-4 py-2 rounded-lg text-xs cursor-pointer"
+          >
+            Đặt lại bộ lọc
+          </button>
+        </div>
+      )}
+
+      {/* Modal View Member Detail */}
+      {viewingMember && (
+        <div className="fixed inset-0 bg-[#162B23]/65 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-[#E3D9C6] relative max-h-[90vh] overflow-y-auto">
+            <button
+              type="button"
+              onClick={() => setViewingMember(null)}
+              className="absolute top-5 right-5 p-1.5 rounded-lg text-[#5A534A] hover:text-[#203D32] hover:bg-[#FAF7F0] cursor-pointer"
+              aria-label="Đóng"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-4 pb-5 border-b border-[#EAE2D1] pr-8">
+              <MemberAvatar src={viewingMember.avatarUrl} name={viewingMember.fullName} size="lg" />
+              <div>
+                <p className="text-xs font-medium text-[#6B4632] tabular-nums">
+                  Đời thứ {viewingMember.generation} · {viewingMember.branch || 'Chi chính'} ·{' '}
+                  {viewingMember.isAlive ? 'Còn sống' : 'Đã tạ thế'}
+                </p>
+                <h3 className="font-serif text-2xl font-semibold text-[#203D32] mt-1">
+                  {viewingMember.fullName}
+                </h3>
+              </div>
+            </div>
+
+            <dl className="divide-y divide-[#EAE2D1] text-sm">
+              {viewingMember.birthDate && (
+                <div className="flex items-center justify-between gap-4 py-2.5">
+                  <dt className="text-[#5A534A]">Năm sinh / Năm mất</dt>
+                  <dd className="font-semibold text-[#203D32] tabular-nums">
+                    {viewingMember.birthDate} — {viewingMember.deathDate || 'Nay'}
+                  </dd>
+                </div>
+              )}
+              {viewingMember.occupation && (
+                <div className="flex items-center justify-between gap-4 py-2.5">
+                  <dt className="text-[#5A534A]">Nghề nghiệp</dt>
+                  <dd className="font-semibold text-[#203D32] text-right">{viewingMember.occupation}</dd>
+                </div>
+              )}
+              {viewingMember.currentLocation && (
+                <div className="flex items-center justify-between gap-4 py-2.5">
+                  <dt className="text-[#5A534A]">Nơi ở hiện tại</dt>
+                  <dd className="font-semibold text-[#203D32] text-right">{viewingMember.currentLocation}</dd>
+                </div>
+              )}
+              {viewingMember.anniversaryLunarDate && (
+                <div className="flex items-center justify-between gap-4 py-2.5">
+                  <dt className="text-[#5A534A]">Ngày giỗ (Âm lịch)</dt>
+                  <dd className="font-semibold text-[#6B4632]">{viewingMember.anniversaryLunarDate}</dd>
+                </div>
+              )}
+            </dl>
+
+            {viewingMember.bio && (
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-semibold text-[#6B4632]">Tiểu sử &amp; ghi chú</h4>
+                <p className="bg-[#FAF7F0] border border-[#EAE2D1] p-4 rounded-xl text-xs sm:text-sm text-[#4A443C] leading-relaxed">
+                  {viewingMember.bio}
+                </p>
+              </div>
+            )}
+
+            <div className="pt-2 flex justify-end">
               <button
-                onClick={() => deleteMember(member.id)}
-                className="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                title="Xóa thành viên"
+                type="button"
+                onClick={() => setViewingMember(null)}
+                className="bg-[#203D32] hover:bg-[#162B23] text-[#F5F0E5] font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors cursor-pointer"
               >
-                <Trash2 className="w-4 h-4" />
+                Đóng hồ sơ
               </button>
             </div>
-
-            <div className="space-y-2 text-xs text-gray-600 pt-3 border-t border-gray-100">
-              {member.occupation && (
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-500">Nghề nghiệp:</span>
-                  <span>{member.occupation}</span>
-                </div>
-              )}
-              {member.currentLocation && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                  <span>{member.currentLocation}</span>
-                </div>
-              )}
-              {member.contactInfo?.phone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                  <span>{member.contactInfo.phone}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-              <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${
-                member.isAlive ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'
-              }`}>
-                {member.isAlive ? '🟢 Còn sống' : '🕊️ Đã tạ thế'}
-              </span>
-              <span className="text-xs text-[#0F4C3A] font-bold hover:underline cursor-pointer">
-                Xem hồ sơ →
-              </span>
-            </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* Modal Add Member */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl border border-amber-500/30 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h3 className="font-serif text-2xl font-bold text-[#0F4C3A]">Thêm Thành Viên Mới</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-gray-400 hover:text-gray-600 font-bold text-xl">✕</button>
+        <div className="fixed inset-0 bg-[#162B23]/65 z-50 flex items-center justify-center p-4 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-[#E3D9C6] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-[#EAE2D1]">
+              <h3 className="font-serif text-2xl font-semibold text-[#203D32]">Thêm thành viên mới</h3>
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="p-1.5 rounded-lg text-[#5A534A] hover:text-[#203D32] hover:bg-[#FAF7F0] cursor-pointer"
+                aria-label="Đóng"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <form onSubmit={handleAddSubmit} className="space-y-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Họ và tên</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#6B4632]">Họ và tên</label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                   placeholder="Ví dụ: Nguyễn Văn Hùng"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Đời thứ mấy</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#6B4632]">Đời thứ</label>
                   <select
                     value={generation}
                     onChange={(e) => setGeneration(Number(e.target.value))}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                    className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                   >
                     <option value={1}>Đời thứ 1</option>
                     <option value={2}>Đời thứ 2</option>
@@ -200,12 +313,12 @@ export const MemberList: React.FC = () => {
                   </select>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Giới tính</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#6B4632]">Giới tính</label>
                   <select
                     value={gender}
-                    onChange={(e) => setGender(e.target.value as any)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                    onChange={(e) => setGender(e.target.value as 'male' | 'female' | 'other')}
+                    className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                   >
                     <option value="male">Nam</option>
                     <option value="female">Nữ</option>
@@ -215,23 +328,23 @@ export const MemberList: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Chi phái</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#6B4632]">Chi phái</label>
                   <input
                     type="text"
                     value={branch}
                     onChange={(e) => setBranch(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                    className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                     placeholder="Ví dụ: Chi 1"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Tình trạng</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#6B4632]">Tình trạng</label>
                   <select
                     value={isAlive ? 'true' : 'false'}
                     onChange={(e) => setIsAlive(e.target.value === 'true')}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                    className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                   >
                     <option value="true">Còn sống</option>
                     <option value="false">Đã tạ thế</option>
@@ -239,41 +352,54 @@ export const MemberList: React.FC = () => {
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Nghề nghiệp / Chức vụ</label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#6B4632]">Năm sinh</label>
+                  <input
+                    type="text"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#203D32]"
+                    placeholder="Ví dụ: 1990"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-[#6B4632]">Nơi ở hiện tại</label>
+                  <input
+                    type="text"
+                    value={currentLocation}
+                    onChange={(e) => setCurrentLocation(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
+                    placeholder="Ví dụ: Hà Nội"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-semibold text-[#6B4632]">Nghề nghiệp / Chức vụ</label>
                 <input
                   type="text"
                   value={occupation}
                   onChange={(e) => setOccupation(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F0] border border-[#D8CCB7] rounded-lg text-sm text-[#1D2823] focus:outline-none focus:ring-2 focus:ring-[#203D32]"
                   placeholder="Ví dụ: Kỹ sư xây dựng"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">Nơi ở hiện tại</label>
-                <input
-                  type="text"
-                  value={currentLocation}
-                  onChange={(e) => setCurrentLocation(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A] font-medium"
-                  placeholder="Ví dụ: Hà Nội"
-                />
-              </div>
-
-              <div className="flex items-center gap-3 pt-4">
+              <div className="flex items-center gap-3 pt-3">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl text-sm transition-colors"
+                  className="flex-1 bg-[#FAF7F0] hover:bg-[#EFE5D0] text-[#203D32] border border-[#E3D9C6] font-semibold py-2.5 rounded-lg text-sm transition-colors cursor-pointer"
                 >
                   Hủy bỏ
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 bg-amber-500 hover:bg-amber-600 text-[#0F4C3A] font-bold py-3 rounded-xl text-sm shadow transition-colors"
+                  className="flex-1 bg-[#203D32] hover:bg-[#162B23] text-[#F5F0E5] font-semibold py-2.5 rounded-lg text-sm transition-colors cursor-pointer"
                 >
-                  Lưu Thành Viên
+                  Lưu thành viên
                 </button>
               </div>
             </form>

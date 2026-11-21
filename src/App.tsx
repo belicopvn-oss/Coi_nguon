@@ -4,12 +4,12 @@
  */
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
 import { Toast } from './components/common/Toast';
-import { SupabaseStatusBanner } from './components/common/SupabaseStatusBanner';
+import { SupabaseStatusBanner, isDevSupabaseBannerEnabled } from './components/common/SupabaseStatusBanner';
 import { DashboardLayout } from './components/dashboard/DashboardLayout';
 
 import { HomePage } from './pages/public/HomePage';
@@ -28,9 +28,12 @@ import { AccountManagement } from './pages/dashboard/AccountManagement';
 import { PendingAccessPage } from './pages/dashboard/PendingAccessPage';
 
 const PublicLayout: React.FC = () => {
+  const location = useLocation();
+  const showDevStatusBanner = isDevSupabaseBannerEnabled(location.search);
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDFBF7]">
-      <SupabaseStatusBanner />
+    <div className="min-h-screen flex flex-col bg-[#F5F0E5]">
+      {showDevStatusBanner && <SupabaseStatusBanner />}
       <Header />
       <main className="flex-1">
         <Outlet />
@@ -46,10 +49,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requireActive?: bool
 
   if (isLoadingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">
+      <div className="min-h-screen flex items-center justify-center bg-[#F5F0E5]">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 border-4 border-[#0F4C3A] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-bold text-[#0F4C3A]">Đang xác thực phiên đăng nhập...</p>
+          <div className="w-10 h-10 border-4 border-[#203D32] border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm font-semibold text-[#203D32]">Đang xác thực phiên đăng nhập...</p>
         </div>
       </div>
     );

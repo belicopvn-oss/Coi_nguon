@@ -60,7 +60,7 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
-  role: 'admin' | 'editor' | 'viewer';
+  role: 'owner' | 'admin' | 'editor' | 'viewer';
   lineageIds: string[];
   avatarUrl?: string;
   phone?: string;
@@ -70,7 +70,7 @@ export interface FamilyMembership {
   id: string;
   user_id: string;
   lineage_id: string;
-  role: 'admin' | 'editor' | 'viewer';
+  role: 'owner' | 'admin' | 'editor' | 'viewer';
   status: 'active' | 'pending' | 'suspended';
   created_at?: string;
 }

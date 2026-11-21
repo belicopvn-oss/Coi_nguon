@@ -1,156 +1,222 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Users, GitBranch, Calendar, Award, ArrowRight, Network, UserPlus, Heart, Sparkles } from 'lucide-react';
+import { Users, GitBranch, Calendar, Award, ArrowRight, Network, UserPlus, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { DongSonBackdrop, MemberAvatar } from '../../components/common/BrandMark';
 
 export const DashboardHome: React.FC = () => {
   const { currentUser, lineages, activeLineageId, members, anniversaries } = useApp();
   const activeLineage = lineages.find((l) => l.id === activeLineageId) || lineages[0];
   const lineageMembers = members.filter((m) => m.lineageId === activeLineageId);
 
+  const stats = [
+    {
+      label: 'Không gian gia phả',
+      value: lineages.length,
+      note: 'Đang quản lý',
+      icon: GitBranch,
+    },
+    {
+      label: 'Thành viên đã lưu',
+      value: lineageMembers.length,
+      note: 'Trong phả hệ hiện tại',
+      icon: Users,
+    },
+    {
+      label: 'Số thế hệ (Đời)',
+      value: activeLineage?.totalGenerations || 5,
+      note: 'Tính từ Thủy tổ',
+      icon: Award,
+    },
+    {
+      label: 'Ngày giỗ sắp tới',
+      value: anniversaries.length,
+      note: 'Lịch âm lịch dòng họ',
+      icon: Calendar,
+    },
+  ];
+
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#0F4C3A] to-[#0a382b] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-amber-500/30 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-3 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-semibold">
-            <Sparkles className="w-4 h-4" />
-            <span>Khu vực quản trị dòng họ</span>
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-amber-100">
-            Kính chào, {currentUser?.fullName}
-          </h2>
-          <p className="text-emerald-100 text-sm sm:text-base max-w-xl">
-            Bạn đang quản lý phả hệ <strong className="text-amber-300">{activeLineage?.name}</strong>. Hôm nay có {anniversaries.length} sự kiện giỗ chạp sắp diễn ra.
-          </p>
-        </div>
+      {/* Greeting Banner */}
+      <section className="relative bg-[#203D32] rounded-2xl p-6 sm:p-8 text-[#F5F0E5] border border-[#B28A45]/35 overflow-hidden">
+        <DongSonBackdrop className="absolute -right-20 -bottom-24 w-72 h-72 opacity-40" />
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2.5">
+            <p className="text-xs font-medium tracking-[0.12em] uppercase text-[#E5C98B]">
+              Không gian quản trị dòng họ
+            </p>
+            <h2 className="font-serif text-2xl sm:text-4xl font-semibold text-[#F5F0E5]">
+              Kính chào, {currentUser?.fullName}
+            </h2>
+            <p className="text-sm sm:text-base text-[#F5F0E5]/82 max-w-2xl leading-relaxed">
+              Bạn đang truy cập gia phả <strong className="text-[#E5C98B] font-semibold">{activeLineage?.name}</strong>. Hiện có{' '}
+              <span className="tabular-nums font-semibold text-[#E5C98B]">{anniversaries.length}</span> ngày giỗ và sự kiện dòng họ sắp diễn ra.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <Link
+              to="/dashboard/tree"
+              className="inline-flex items-center justify-center gap-2 bg-[#B28A45] hover:bg-[#9E7838] text-[#162B23] font-semibold px-5 py-3 rounded-lg text-sm transition-colors whitespace-nowrap"
+            >
+              <Network className="w-4 h-4" />
+              <span>Xem cây gia phả</span>
+            </Link>
+            <Link
+              to="/dashboard/members"
+              className="inline-flex items-center justify-center gap-2 border border-[#F5F0E5]/30 hover:border-[#E5C98B] text-[#F5F0E5] hover:text-[#E5C98B] font-medium px-5 py-3 rounded-lg text-sm transition-colors whitespace-nowrap"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Quản lý thành viên</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Metrics Row */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {stats.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <div
+              key={stat.label}
+              className="bg-white p-6 rounded-2xl border border-[#E3D9C6] shadow-xs flex items-start justify-between gap-4"
+            >
+              <div className="space-y-1.5">
+                <span className="text-xs font-medium text-[#5A534A] block">{stat.label}</span>
+                <span className="block font-serif text-3xl font-semibold text-[#203D32] tabular-nums">
+                  {stat.value}
+                </span>
+                <span className="text-xs text-[#6B4632] block">{stat.note}</span>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-[#FAF7F0] border border-[#E3D9C6] text-[#B28A45] flex items-center justify-center shrink-0">
+                <Icon className="w-5 h-5" />
+              </div>
+            </div>
+          );
+        })}
+      </section>
+
+      {/* Quick Access Lineages Strip */}
+      <section className="bg-white p-6 sm:p-7 rounded-2xl border border-[#E3D9C6] shadow-xs space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="font-serif text-xl font-semibold text-[#203D32]">Các không gian gia phả</h3>
+            <p className="text-xs text-[#5A534A] mt-0.5">Truy cập nhanh các dòng họ và chi phái đang quản lý</p>
+          </div>
           <Link
-            to="/dashboard/tree"
-            className="bg-amber-500 hover:bg-amber-600 text-[#0F4C3A] font-bold px-6 py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2 text-sm transition-all"
+            to="/dashboard/lineages"
+            className="text-xs font-semibold text-[#203D32] hover:text-[#6B4632] inline-flex items-center gap-1 whitespace-nowrap"
           >
-            <Network className="w-4 h-4" />
-            <span>Xem Cây Gia Phả</span>
-          </Link>
-          <Link
-            to="/dashboard/members"
-            className="bg-emerald-900/80 hover:bg-emerald-900 text-emerald-100 border border-emerald-700 font-semibold px-6 py-3.5 rounded-xl flex items-center justify-center gap-2 text-sm transition-all"
-          >
-            <UserPlus className="w-4 h-4 text-amber-400" />
-            <span>Thêm Thành Viên</span>
+            <span>Xem tất cả</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-xs border border-gray-200 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs uppercase tracking-wider text-gray-500 font-bold">Tổng số dòng họ</span>
-            <span className="block font-serif text-3xl font-bold text-[#0F4C3A]">{lineages.length}</span>
-            <span className="text-xs text-amber-700 font-medium">Đang kết nối</span>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
-            <GitBranch className="w-6 h-6" />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {lineages.map((lin) => {
+            const isCurrent = lin.id === activeLineageId;
+            return (
+              <Link
+                key={lin.id}
+                to="/dashboard/lineages"
+                className={`p-4 rounded-xl border transition-colors flex items-center justify-between gap-4 ${
+                  isCurrent
+                    ? 'bg-[#FAF7F0] border-[#B28A45]'
+                    : 'bg-white border-[#EAE2D1] hover:border-[#B28A45]/60'
+                }`}
+              >
+                <div className="min-w-0 space-y-1">
+                  <div className="flex items-center gap-2 text-xs text-[#6B4632]">
+                    <span>{lin.founderName}</span>
+                    {isCurrent && (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span className="font-semibold text-[#203D32]">Đang chọn</span>
+                      </>
+                    )}
+                  </div>
+                  <h4 className="font-serif text-base font-semibold text-[#203D32] truncate">{lin.name}</h4>
+                  <p className="text-xs text-[#5A534A] tabular-nums">
+                    {lin.totalGenerations} thế hệ · {lin.totalMembers} thành viên · {lin.originPlace}
+                  </p>
+                </div>
+                <ArrowRight className="w-4 h-4 text-[#B28A45] shrink-0" />
+              </Link>
+            );
+          })}
         </div>
+      </section>
 
-        <div className="bg-white p-6 rounded-2xl shadow-xs border border-gray-200 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs uppercase tracking-wider text-gray-500 font-bold">Thành viên dòng họ</span>
-            <span className="block font-serif text-3xl font-bold text-[#0F4C3A]">{lineageMembers.length}</span>
-            <span className="text-xs text-emerald-700 font-medium">Đã số hóa</span>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-[#0F4C3A] flex items-center justify-center">
-            <Users className="w-6 h-6" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl shadow-xs border border-gray-200 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs uppercase tracking-wider text-gray-500 font-bold">Số thế hệ (Đời)</span>
-            <span className="block font-serif text-3xl font-bold text-[#0F4C3A]">{activeLineage?.totalGenerations || 5}</span>
-            <span className="text-xs text-amber-700 font-medium">Từ Thủy tổ</span>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center">
-            <Award className="w-6 h-6" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl shadow-xs border border-gray-200 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs uppercase tracking-wider text-gray-500 font-bold">Ngày giỗ sắp tới</span>
-            <span className="block font-serif text-3xl font-bold text-[#0F4C3A]">{anniversaries.length}</span>
-            <span className="text-xs text-red-600 font-medium">Cần chuẩn bị</span>
-          </div>
-          <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-800 flex items-center justify-center">
-            <Calendar className="w-6 h-6" />
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions & Recent Anniversaries */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white p-6 sm:p-8 rounded-3xl shadow-xs border border-gray-200 space-y-6">
+      {/* Main Split: Recent Members + Upcoming Anniversaries */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        {/* Recent Members */}
+        <div className="lg:col-span-7 bg-white p-6 sm:p-7 rounded-2xl border border-[#E3D9C6] shadow-xs space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-serif text-xl font-bold text-[#0F4C3A]">Thành viên nổi bật & Gần đây</h3>
-            <Link to="/dashboard/members" className="text-xs text-amber-700 font-bold hover:underline flex items-center gap-1">
-              Xem tất cả <ArrowRight className="w-3.5 h-3.5" />
+            <h3 className="font-serif text-xl font-semibold text-[#203D32]">Thành viên tiêu biểu</h3>
+            <Link
+              to="/dashboard/members"
+              className="text-xs text-[#6B4632] font-semibold hover:text-[#203D32] inline-flex items-center gap-1"
+            >
+              <span>Danh sách đầy đủ</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="divide-y divide-gray-100">
-            {lineageMembers.slice(0, 4).map((member) => (
-              <div key={member.id} className="py-4 flex items-center justify-between hover:bg-gray-50 px-3 rounded-xl transition-colors">
-                <div className="flex items-center gap-4">
-                  <img
-                    src={member.avatarUrl || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'}
-                    alt={member.fullName}
-                    className="w-12 h-12 rounded-full object-cover border border-amber-500/30"
-                  />
-                  <div>
-                    <h4 className="font-bold text-sm text-gray-900">{member.fullName}</h4>
-                    <p className="text-xs text-gray-500">
-                      Đời thứ {member.generation} • {member.branch || 'Chi chính'} {member.occupation ? `• ${member.occupation}` : ''}
+          <div className="divide-y divide-[#EAE2D1]">
+            {lineageMembers.slice(0, 5).map((member) => (
+              <div
+                key={member.id}
+                className="py-3.5 flex items-center justify-between gap-4 hover:bg-[#FAF7F0] px-2.5 -mx-2.5 rounded-xl transition-colors"
+              >
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <MemberAvatar src={member.avatarUrl} name={member.fullName} size="md" />
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-sm text-[#203D32] truncate">{member.fullName}</h4>
+                    <p className="text-xs text-[#5A534A] truncate mt-0.5">
+                      Đời thứ <span className="tabular-nums">{member.generation}</span> · {member.branch || 'Chi chính'}
+                      {member.occupation ? ` · ${member.occupation}` : ''}
                     </p>
                   </div>
                 </div>
                 <Link
-                  to={`/dashboard/members`}
-                  className="text-xs bg-emerald-50 text-[#0F4C3A] font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors"
+                  to="/dashboard/members"
+                  className="text-xs font-semibold text-[#203D32] hover:text-[#6B4632] whitespace-nowrap shrink-0"
                 >
-                  Chi tiết
+                  Chi tiết →
                 </Link>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Anniversaries Upcoming */}
-        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-xs border border-gray-200 space-y-6">
+        {/* Upcoming Anniversaries */}
+        <div className="lg:col-span-5 bg-white p-6 sm:p-7 rounded-2xl border border-[#E3D9C6] shadow-xs space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-serif text-xl font-bold text-[#0F4C3A]">Lịch Giỗ Chạp</h3>
-            <Calendar className="w-5 h-5 text-amber-600" />
+            <h3 className="font-serif text-xl font-semibold text-[#203D32]">Lịch giỗ chạp sắp tới</h3>
+            <Calendar className="w-5 h-5 text-[#B28A45]" />
           </div>
 
-          <div className="space-y-4">
+          <div className="divide-y divide-[#EAE2D1]">
             {anniversaries.map((ann) => (
-              <div key={ann.id} className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/60 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-amber-800 bg-amber-200/70 px-2.5 py-0.5 rounded-full">
-                    {ann.lunarDate}
-                  </span>
-                  <span className="text-[11px] text-gray-500">{ann.solarDate}</span>
+              <div key={ann.id} className="py-4 first:pt-0 last:pb-0 space-y-1.5">
+                <div className="flex items-center justify-between gap-2 text-xs">
+                  <span className="font-semibold text-[#6B4632]">{ann.lunarDate}</span>
+                  <span className="text-[#5A534A] tabular-nums">{ann.solarDate}</span>
                 </div>
-                <h4 className="font-bold text-sm text-[#0F4C3A]">{ann.title}</h4>
-                <p className="text-xs text-gray-600">{ann.description}</p>
-                <p className="text-[11px] text-gray-400">📍 {ann.location}</p>
+                <h4 className="font-serif font-semibold text-base text-[#203D32]">{ann.title}</h4>
+                <p className="text-xs text-[#5A534A] leading-relaxed">{ann.description}</p>
+                <p className="text-xs text-[#5A534A] pt-1 flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[#B28A45] shrink-0" />
+                  <span>{ann.location}</span>
+                </p>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };

@@ -1,59 +1,74 @@
 import React from 'react';
-import { Shield, Lock, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
+import { HeritageDivider } from '../../components/common/BrandMark';
 
 export const PrivacyPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#FDFBF7] text-gray-800 py-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        <div className="text-center space-y-4">
-          <span className="text-xs uppercase tracking-widest text-amber-700 font-bold bg-amber-100 px-3.5 py-1.5 rounded-full">
-            Cam kết bảo mật
-          </span>
-          <h1 className="font-serif text-4xl font-bold text-[#0F4C3A]">Chính Sách Quyền Riêng Tư & Bảo Mật</h1>
-          <p className="text-gray-600 text-base">
-            Cập nhật lần cuối: Tháng 11 năm 2026. Cội Nguồn cam kết bảo vệ tuyệt đối thông tin gia phả và dữ liệu cá nhân của các thành viên dòng họ.
+    <div className="min-h-screen bg-[#F5F0E5] text-[#1D2823] py-14 sm:py-20">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <div className="text-center space-y-3">
+          <p className="text-xs font-semibold tracking-[0.14em] uppercase text-[#6B4632]">
+            Cam kết quyền riêng tư
+          </p>
+          <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-[#203D32]">
+            Chính sách quyền riêng tư &amp; bảo mật
+          </h1>
+          <p className="text-sm text-[#5A534A]">
+            Cập nhật lần cuối: Tháng 11 năm 2026 · Áp dụng cho toàn bộ thành viên nền tảng Cội Nguồn
           </p>
         </div>
 
-        <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-gray-200 space-y-8">
+        <HeritageDivider />
+
+        <div className="bg-white p-7 sm:p-11 rounded-2xl border border-[#E3D9C6] shadow-xs space-y-8">
           <section className="space-y-3">
-            <h2 className="font-serif text-2xl font-bold text-[#0F4C3A] flex items-center gap-2">
-              <Shield className="w-6 h-6 text-amber-600" />
-              1. Mục đích thu thập thông tin
-            </h2>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Hệ thống Cội Nguồn thu thập thông tin phả hệ (tên thành viên, ngày sinh, ngày mất, quan hệ gia đình, tiểu sử) hoàn toàn do người dùng và Trưởng tộc đại diện nhập liệu nhằm mục đích số hóa gia phả, lưu giữ truyền thống và thông báo ngày giỗ chạp trong nội bộ dòng họ.
+            <div className="flex items-center gap-2.5 text-[#203D32]">
+              <ShieldCheck className="w-5 h-5 text-[#B28A45] shrink-0" />
+              <h2 className="font-serif text-xl sm:text-2xl font-semibold">
+                01. Mục đích thu thập thông tin
+              </h2>
+            </div>
+            <p className="text-sm sm:text-[15px] text-[#4A443C] leading-relaxed">
+              Hệ thống Cội Nguồn chỉ tiếp nhận thông tin phả hệ (họ tên, năm sinh, năm mất, quan hệ huyết thống, tiểu sử và ngày giỗ) do người đại diện dòng họ hoặc thành viên được ủy quyền chủ động cung cấp nhằm phục vụ lưu trữ gia phả và gắn kết nội bộ gia đình.
             </p>
           </section>
 
+          <hr className="border-[#EAE2D1]" />
+
           <section className="space-y-3">
-            <h2 className="font-serif text-2xl font-bold text-[#0F4C3A] flex items-center gap-2">
-              <Lock className="w-6 h-6 text-amber-600" />
-              2. Quyền riêng tư và phạm vi hiển thị
-            </h2>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#0F4C3A] shrink-0 mt-1" />
-                <span>Thông tin gia phả là tài sản riêng tư của từng dòng họ, không công khai tìm kiếm trên các công cụ tìm kiếm công cộng (Google, Bing...).</span>
+            <div className="flex items-center gap-2.5 text-[#203D32]">
+              <Lock className="w-5 h-5 text-[#B28A45] shrink-0" />
+              <h2 className="font-serif text-xl sm:text-2xl font-semibold">
+                02. Quyền riêng tư và phạm vi hiển thị
+              </h2>
+            </div>
+            <ul className="space-y-3 text-sm sm:text-[15px] text-[#4A443C] leading-relaxed">
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#203D32] shrink-0 mt-1" />
+                <span>Dữ liệu gia phả là tài sản riêng tư của từng dòng họ, không công khai trên các trang bên ngoài và không lập chỉ mục trên công cụ tìm kiếm.</span>
               </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#0F4C3A] shrink-0 mt-1" />
-                <span>Chỉ những thành viên được Trưởng tộc hoặc Quản trị viên cấp quyền tài khoản mới có thể xem hoặc chỉnh sửa phả hệ.</span>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#203D32] shrink-0 mt-1" />
+                <span>Chỉ thành viên đã xác thực tài khoản và được Trưởng tộc hoặc Quản trị viên duyệt quyền truy cập mới được phép xem phả hệ.</span>
               </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#0F4C3A] shrink-0 mt-1" />
-                <span>Chúng tôi tuyệt đối không chia sẻ, bán hoặc tiết lộ dữ liệu gia phả cho bất kỳ bên thứ ba nào vì mục đích thương mại.</span>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#203D32] shrink-0 mt-1" />
+                <span>Cội Nguồn tuyệt đối không chia sẻ, mua bán hay tiết lộ thông tin gia phả cho bất kỳ bên thứ ba nào vì mục đích thương mại.</span>
               </li>
             </ul>
           </section>
 
+          <hr className="border-[#EAE2D1]" />
+
           <section className="space-y-3">
-            <h2 className="font-serif text-2xl font-bold text-[#0F4C3A] flex items-center gap-2">
-              <Shield className="w-6 h-6 text-amber-600" />
-              3. Bảo mật kỹ thuật
-            </h2>
-            <p className="text-gray-600 text-sm leading-relaxed">
-              Hệ thống áp dụng các tiêu chuẩn mã hóa dữ liệu tiên tiến trong truyền tải và lưu trữ. Cơ sở dữ liệu được thiết kế sẵn sàng tích hợp các giải pháp bảo mật cấp độ cao (như Supabase Auth & RLS Row Level Security) để bảo vệ an toàn tối đa cho thông tin dòng họ.
+            <div className="flex items-center gap-2.5 text-[#203D32]">
+              <ShieldCheck className="w-5 h-5 text-[#B28A45] shrink-0" />
+              <h2 className="font-serif text-xl sm:text-2xl font-semibold">
+                03. Bảo vệ dữ liệu ở tầng kỹ thuật
+              </h2>
+            </div>
+            <p className="text-sm sm:text-[15px] text-[#4A443C] leading-relaxed">
+              Dữ liệu được truyền tải qua kết nối mã hóa và áp dụng xác thực kết hợp cơ chế kiểm soát truy cập theo hàng (Row Level Security) trên Supabase để đảm bảo phân quyền minh bạch và an toàn lâu dài.
             </p>
           </section>
         </div>
